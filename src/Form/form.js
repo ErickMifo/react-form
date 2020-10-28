@@ -5,10 +5,12 @@ import * as Yup from 'yup';
 import FormikField from './FormikField/FormikField';
 import FormikSelect from './FormikSelect/FormikSelect';
 import Button from '@material-ui/core/Button';
+import emailjs from 'emailjs-com';
 
 const initialValues = {
   name: '',
   position: '',
+  message: '',
   email: '',
   password: '',
   passwordConfirm: ''
@@ -47,6 +49,8 @@ const SignupSchema = Yup.object().shape({
     .required('Required!'),
   position: Yup.string()
     .required('Required!'),
+  message: Yup.string()
+    .required('Required!'),
   email: Yup.string()
     .lowercase()
     .email('Must be a valid email!')
@@ -65,34 +69,38 @@ const SignupSchema = Yup.object().shape({
 
 const Formulario = () => {
 
-  const handleSubmit = (value) => {
-    alert(JSON.stringify(value))
+  const handleSubmit = (e , value) => {
+    e.preventDefault();
+    console.log(e.target)
+
+    emailjs.sendForm('gmail', 'template_xigp8ld', e.target , 'user_PEmMhmxPcChtmcH3hWoxO')
+      .then((result) => {
+          console.log(result.text);
+      }, (error) => {
+          console.log(error.text);
+      });
+      e.target.reset()
   }
 return(
   <div className="App">
       <h1>Sign Up</h1>
       <Formik
       initialValues={initialValues}
-      onSubmit={handleSubmit}
       validationSchema={SignupSchema}
       >
         {({ dirty, isValid }) => {
           return(
-            <Form>
+            <Form onSubmit={handleSubmit}>
               <FormikField name='name' label='Name' />
               <FormikField name='email' label='Email' />
               <FormikField name='password' label='Password' type="password" /> 
               <FormikField name='passwordConfirm' label='Password Confirm' type="password" /> 
-           
+              <FormikField rows={4} multiline={true} name='message' label='Message ' />
               <FormikSelect name="position" items={selectItem} label="Position"/>
-
-
 
               <Button variant="contained" color="primary" disabled={!dirty || !isValid} type="submit">
                   Submit
               </Button>
-
-              
             </Form>
           )
         }}
